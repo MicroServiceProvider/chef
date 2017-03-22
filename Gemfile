@@ -21,6 +21,7 @@ gem "cheffish" # required for rspec tests
 
 group(:omnibus_package) do
   gem "appbundler"
+  gem "inspec"
   gem "rb-readline"
   # nokogiri has no ruby-2.4 version for windows so it cannot go into our Gemfile.lock
   #  gem "nokogiri", ">= 1.7.1"
