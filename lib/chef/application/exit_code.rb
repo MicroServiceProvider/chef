@@ -45,27 +45,11 @@ class Chef
       class << self
 
         def normalize_exit_code(exit_code = nil)
-          if normalization_not_configured?
-            normalize_legacy_exit_code_with_warning(exit_code)
-          elsif normalization_disabled?
+          if normalization_disabled?
             normalize_legacy_exit_code(exit_code)
           else
             normalize_exit_code_to_rfc(exit_code)
           end
-        end
-
-        def enforce_rfc_062_exit_codes?
-          !normalization_disabled? && !normalization_not_configured?
-        end
-
-        def notify_reboot_exit_code_deprecation
-          return if normalization_disabled?
-          notify_on_deprecation(reboot_deprecation_warning)
-        end
-
-        def notify_deprecated_exit_code
-          return if normalization_disabled?
-          notify_on_deprecation(deprecation_warning)
         end
 
         private
@@ -74,14 +58,10 @@ class Chef
           Chef::Config[:exit_status] == :disabled
         end
 
-        def normalization_not_configured?
-          Chef::Config[:exit_status].nil?
-        end
-
         def normalize_legacy_exit_code_with_warning(exit_code)
           normalized_exit_code = normalize_legacy_exit_code(exit_code)
           unless valid_exit_codes.include? normalized_exit_code
-            notify_on_deprecation(deprecation_warning)
+            Chef::Log.warn(unsupported_exit_code_warning)
           end
           normalized_exit_code
         end
@@ -111,7 +91,7 @@ class Chef
             VALID_RFC_062_EXIT_CODES[:SIGINT_RECEIVED]
           elsif sigterm_received?(exception)
             VALID_RFC_062_EXIT_CODES[:SIGTERM_RECEIVED]
-          elsif normalization_disabled? || normalization_not_configured?
+          elsif normalization_disabled?
             if legacy_exit_code?(exception)
               # We have lots of "Chef::Application.fatal!('', 2)
               # This maintains that behavior at initial introduction
@@ -197,33 +177,15 @@ class Chef
           VALID_RFC_062_EXIT_CODES.values
         end
 
-        def notify_on_deprecation(message)
-          Chef.deprecated(:exit_code, message)
-        rescue Chef::Exceptions::DeprecatedFeatureError
-            # Have to rescue this, otherwise this unhandled error preempts
-            # the current exit code assignment.
-        end
-
-        def deprecation_warning
+        def unsupported_exit_code_warning
           "Chef RFC 062 (https://github.com/chef/chef-rfc/blob/master/rfc062-exit-status.md) defines the" \
-          " exit codes that should be used with Chef.  Chef::Application::ExitCode defines valid exit codes"  \
-          " In a future release, non-standard exit codes will be redefined as" \
-          " GENERIC_FAILURE unless `exit_status` is set to `:disabled` in your client.rb."
-        end
-
-        def reboot_deprecation_warning
-          "Per RFC 062 (https://github.com/chef/chef-rfc/blob/master/rfc062-exit-status.md)" \
-          ", when a reboot is requested Chef Client will exit with an exit code of 35, REBOOT_SCHEDULED." \
-          " To maintain the current behavior (an exit code of 0), you will need to set `exit_status` to" \
-          " `:disabled` in your client.rb"
+          " exit codes that should be used with Chef. Chef::Application::ExitCode defines valid exit codes."  \
+          " Chef attempted to exit with a non-standard exit code. The non-standard exit code was redefined" \
+          " as GENERIC_FAILURE.  Setting `exit_status` to `:disabled` in your client.rb disables this behavior."
         end
 
         def default_exit_code
-          if normalization_disabled? || normalization_not_configured?
-            DEPRECATED_RFC_062_EXIT_CODES[:DEPRECATED_FAILURE]
-          else
-            VALID_RFC_062_EXIT_CODES[:GENERIC_FAILURE]
-          end
+          VALID_RFC_062_EXIT_CODES[:GENERIC_FAILURE]
         end
 
       end

@@ -25,12 +25,13 @@ describe "chef-client" do
 
   let(:critical_env_vars) { %w{PATH RUBYOPT BUNDLE_GEMFILE GEM_PATH}.map { |o| "#{o}=#{ENV[o]}" } .join(" ") }
 
-  when_the_repository "does not have exit_status configured" do
+  when_the_repository "has exit_status :disabled configured" do
 
     def setup_client_rb
       file "config/client.rb", <<EOM
 local_mode true
 cookbook_path "#{path_to('cookbooks')}"
+exit_status :disabled
 EOM
     end
 
@@ -38,6 +39,7 @@ EOM
       file "config/client.rb", <<EOM
 local_mode true
 cookbook_path "#{path_to('cookbooks')}"
+exit_status :disabled
 audit_mode :audit_only
 EOM
     end

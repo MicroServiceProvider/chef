@@ -690,6 +690,11 @@ module ChefConfig
     # on running chef-client
     default :count_log_resource_updates, true
 
+    # Enforces the use of the exit codes defined in Chef RFC 062
+    # Setting this to `:disabled` will allow the use of custom exit codes.
+    # https://github.com/chef/chef-rfc/blob/master/rfc062-exit-status.md
+    default :exit_status, :enabled
+
     # knife configuration data
     config_context :knife do
       # XXX: none of these default values are applied to knife (and would create a backcompat
