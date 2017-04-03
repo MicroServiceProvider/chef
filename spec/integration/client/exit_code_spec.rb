@@ -78,9 +78,9 @@ end
 RECIPE
           end
 
-          it "exits with GENERIC_FAILURE, 1" do
+          it "exits with AUDIT_MODE_FAILURE, 42" do
             setup_client_rb_with_audit_mode
-            run_chef_client_and_expect_exit_code 1
+            run_chef_client_and_expect_exit_code 42
           end
         end
       end
@@ -121,9 +121,9 @@ raise Chef::Exceptions::RebootFailed.new
 EOM
         end
 
-        it "exits with GENERIC_FAILURE, 1" do
+        it "exits with REBOOT_FAILED, 41" do
           setup_client_rb
-          run_chef_client_and_expect_exit_code 1
+          run_chef_client_and_expect_exit_code 41
         end
       end
     end

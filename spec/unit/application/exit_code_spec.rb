@@ -143,10 +143,6 @@ describe Chef::Application::ExitCode do
     it "returns SIGTERM_RECEIVED when a SIGTERM is received" do
       expect(exit_codes.normalize_exit_code(Chef::Exceptions::SigTerm.new("BOOM"))).to eq(3)
     end
-
-    it "returns SIGINT_RECEIVED when a deprecated exit code error is received" do
-      expect(exit_codes.normalize_exit_code(Chef::Exceptions::DeprecatedExitCode.new("BOOM"))).to eq(2)
-    end
   end
 
   context "when Chef::Config :exit_status is configured to validate exit codes" do
@@ -173,10 +169,6 @@ describe Chef::Application::ExitCode do
 
     it "returns SIGTERM_RECEIVED when a SIGTERM is received" do
       expect(exit_codes.normalize_exit_code(Chef::Exceptions::SigTerm.new("BOOM"))).to eq(3)
-    end
-
-    it "returns GENERIC_FAILURE when a deprecated exit code error is received" do
-      expect(exit_codes.normalize_exit_code(Chef::Exceptions::DeprecatedExitCode.new("BOOM"))).to eq(1)
     end
 
     it "returns GENERIC_FAILURE when an exception is specified" do

@@ -91,15 +91,6 @@ class Chef
             VALID_RFC_062_EXIT_CODES[:SIGINT_RECEIVED]
           elsif sigterm_received?(exception)
             VALID_RFC_062_EXIT_CODES[:SIGTERM_RECEIVED]
-          elsif normalization_disabled?
-            if legacy_exit_code?(exception)
-              # We have lots of "Chef::Application.fatal!('', 2)
-              # This maintains that behavior at initial introduction
-              # and when the RFC exit_status compliance is disabled.
-              VALID_RFC_062_EXIT_CODES[:SIGINT_RECEIVED]
-            else
-              VALID_RFC_062_EXIT_CODES[:GENERIC_FAILURE]
-            end
           elsif reboot_scheduled?(exception)
             VALID_RFC_062_EXIT_CODES[:REBOOT_SCHEDULED]
           elsif reboot_needed?(exception)
@@ -112,12 +103,6 @@ class Chef
             VALID_RFC_062_EXIT_CODES[:CLIENT_UPGRADED]
           else
             VALID_RFC_062_EXIT_CODES[:GENERIC_FAILURE]
-          end
-        end
-
-        def legacy_exit_code?(exception)
-          resolve_exception_array(exception).any? do |e|
-            e.is_a? Chef::Exceptions::DeprecatedExitCode
           end
         end
 
