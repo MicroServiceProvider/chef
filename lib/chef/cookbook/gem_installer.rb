@@ -50,7 +50,7 @@ class Chef
           begin
             Dir.mktmpdir("chef-gem-bundle") do |dir|
               File.open("#{dir}/Gemfile", "w+") do |tf|
-                Array.new(Chef::Config[:rubygems_url] || "https://www.rubygems.org").each do |s|
+                Array(Chef::Config[:rubygems_url] || "https://www.rubygems.org").each do |s|
                   tf.puts "source '#{s}'"
                 end
                 cookbook_gems.each do |gem_name, args|
